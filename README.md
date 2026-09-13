@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Karma · hellokarma.fr
 
-## Getting Started
+Le club privé des hommes qui tiennent à elle mais ne le montrent pas assez. Chaque lundi, 3 petites attentions choisies pour son couple, 3 minutes pour la faire.
 
-First, run the development server:
+- Cadrage produit : [`docs/cadrage.md`](docs/cadrage.md)
+- Contexte pour Claude Code : [`CLAUDE.md`](CLAUDE.md)
+- Schéma de base : [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql)
+
+## Démarrer en local
+
+Prérequis : Node.js 22 ou plus récent, npm.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # puis remplir les clés
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Comptes à créer (sprint 0)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Service | Usage | Où trouver les clés |
+|---|---|---|
+| GitHub | Hébergement du code | Créer un dépôt privé `hellokarma`, pousser ce projet |
+| Vercel | Hébergement du site et cron | Importer le dépôt GitHub, région `cdg1` (Paris) |
+| Supabase | Base de données et auth | Nouveau projet, région Frankfurt (eu-central-1) ; Settings → API |
+| Stripe | Abonnement 5 €/mois | Créer un produit « Karma » avec un prix récurrent mensuel ; Developers → API keys |
+| Resend | Emails | Ajouter le domaine `hellokarma.fr`, configurer SPF, DKIM, DMARC ; API keys |
+| Anthropic | Personnalisation des textes | console.anthropic.com → API keys |
+| Registrar (OVH, Gandi, Infomaniak) | Domaine hellokarma.fr | À réserver en premier |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Toutes les clés vont dans `.env.local` (jamais commité) et dans les variables d'environnement Vercel.
 
-## Learn More
+## Appliquer le schéma Supabase
 
-To learn more about Next.js, take a look at the following resources:
+Option simple : ouvrir le SQL Editor de Supabase, coller le contenu de `supabase/migrations/0001_init.sql`, exécuter.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Option outillée (recommandée à partir du sprint 1) :
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx supabase login
+npx supabase link --project-ref <ref-du-projet>
+npx supabase db push
+npx supabase gen types typescript --linked > src/lib/supabase/types.ts
+```
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev      # serveur de développement
+npm run build    # build de production, à lancer avant tout commit
+npm run lint     # eslint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Structure
+
+```
+src/app/                 routes et API
+src/components/          composants partagés
+src/emails/              gabarits React Email
+src/lib/engine/          moteur de sélection (fonctions pures)
+src/lib/supabase/        clients Supabase
+src/lib/stripe/          Stripe
+src/lib/email/           envoi et liens signés
+supabase/migrations/     schéma SQL
+docs/                    cadrage et décisions
+```
