@@ -30,8 +30,12 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect /profil and any sub-routes
-  if (request.nextUrl.pathname.startsWith("/profil") && !user) {
+  // Protect /profil and /onboarding
+  const protectedPaths = ["/profil", "/onboarding"];
+  const isProtected = protectedPaths.some((p) =>
+    request.nextUrl.pathname.startsWith(p)
+  );
+  if (isProtected && !user) {
     return NextResponse.redirect(new URL("/connexion", request.url));
   }
 

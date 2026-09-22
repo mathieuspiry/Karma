@@ -26,3 +26,22 @@ body {
   color: var(--foreground);
   font-family: var(--font-body), system-ui, sans-serif;
 }
+
+.input {
+  width: 100%;
+  border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent);
+  background: transparent;
+  padding: 0.75rem 1rem;
+  color: var(--foreground);
+  outline: none;
+  border-radius: 0;
+  appearance: none;
+}
+
+.input::placeholder {
+  color: color-mix(in srgb, var(--foreground) 40%, transparent);
+}
+
+.input:focus {
+  border-color: var(--gold);
+}

@@ -25,6 +25,7 @@ export type Database = {
           role?: "owner" | "editor"
           created_at?: string
         }
+        Relationships: []
       }
       members: {
         Row: {
@@ -72,6 +73,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       couples: {
         Row: {
@@ -122,6 +124,15 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "couples_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       tags: {
         Row: {
@@ -145,6 +156,7 @@ export type Database = {
           family?: Database["public"]["Enums"]["tag_family"]
           created_at?: string
         }
+        Relationships: []
       }
       couple_tags: {
         Row: {
@@ -162,6 +174,7 @@ export type Database = {
           tag_id?: string
           kind?: Database["public"]["Enums"]["couple_tag_kind"]
         }
+        Relationships: []
       }
       occasions: {
         Row: {
@@ -191,6 +204,7 @@ export type Database = {
           recurring?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       attentions: {
         Row: {
@@ -247,6 +261,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       attention_tags: {
         Row: {
@@ -264,6 +279,7 @@ export type Database = {
           tag_id?: string
           kind?: Database["public"]["Enums"]["attention_tag_kind"]
         }
+        Relationships: []
       }
       weekly_batches: {
         Row: {
@@ -296,6 +312,7 @@ export type Database = {
           opened_at?: string | null
           reminder_sent_at?: string | null
         }
+        Relationships: []
       }
       batch_items: {
         Row: {
@@ -334,6 +351,20 @@ export type Database = {
           reaction?: Database["public"]["Enums"]["reaction"] | null
           note?: string | null
         }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      set_updated_at: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
@@ -349,6 +380,9 @@ export type Database = {
       city_type: "grande_ville" | "periurbain" | "campagne"
       love_language: "mots" | "temps" | "cadeaux" | "services" | "contact"
       reaction: "adore" | "contente" | "neutre" | "rate"
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }
