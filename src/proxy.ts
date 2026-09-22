@@ -30,13 +30,28 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect /profil and /onboarding
+  // Protect /profil and /onboarding — require auth
   const protectedPaths = ["/profil", "/onboarding"];
   const isProtected = protectedPaths.some((p) =>
     request.nextUrl.pathname.startsWith(p)
   );
   if (isProtected && !user) {
     return NextResponse.redirect(new URL("/connexion", request.url));
+  }
+
+  // Protect /admin — require auth + admin row
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (!user) {
+      return NextResponse.redirect(new URL("/connexion", request.url));
+    }
+    const { data: adminRow } = await supabase
+      .from("admins")
+      .select("id")
+      .eq("id", user.id)
+      .single();
+    if (!adminRow) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
   return response;
