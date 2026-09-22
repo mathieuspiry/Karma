@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { stripe } from "@/lib/stripe/client";
 import { createServiceClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
 import Link from "next/link";
 
 interface Props {
@@ -94,17 +95,13 @@ export default async function BienvenueePage({ searchParams }: Props) {
     })
     .eq("id", userId);
 
-  // Send magic link so the member can log in and complete onboarding
-  await supabase.auth.admin.generateLink({
-    type: "magiclink",
-    email,
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/onboarding`,
-    },
-  });
-
-  // Also send via Supabase's own email (triggers the configured template)
-  await supabase.auth.signInWithOtp({
+  // Send magic link using the anon key client — signInWithOtp must not use service role
+  const anonClient = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } }
+  );
+  await anonClient.auth.signInWithOtp({
     email,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/onboarding`,
