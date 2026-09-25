@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { dispatchBatch } from "@/lib/email/dispatchBatch";
 import type { Database } from "@/lib/supabase/types";
 
 type BudgetTier = Database["public"]["Enums"]["budget_tier"];
@@ -42,11 +43,15 @@ export async function saveOnboarding(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
-  // Mark onboarding as complete on the member
   await supabase
     .from("members")
     .update({ onboarding_completed_at: new Date().toISOString() })
     .eq("id", user.id);
+
+  // Rule 9: send first batch immediately after onboarding (fire and forget — don't block redirect)
+  dispatchBatch(user.id).catch((err) =>
+    console.error("[onboarding] dispatchBatch failed:", err)
+  );
 
   redirect("/profil");
 }
