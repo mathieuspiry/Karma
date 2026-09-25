@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/browser";
 
 export default function ConnexionPage() {
@@ -51,6 +52,9 @@ export default function ConnexionPage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-24">
       <div className="w-full max-w-sm">
+        <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground">
+          ← Retour
+        </Link>
         <h1 className="mb-2 font-display text-4xl uppercase tracking-wide">
           Connexion
         </h1>

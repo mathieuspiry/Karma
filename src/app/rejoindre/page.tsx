@@ -1,9 +1,15 @@
+import Link from "next/link";
 import { createCheckoutSession } from "./actions";
 
 export default function RejoindreePage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-24 text-center">
       <div className="w-full max-w-sm">
+        <div className="mb-8 text-left">
+          <Link href="/" className="inline-flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground">
+            ← Retour
+          </Link>
+        </div>
         <p className="mb-3 text-xs uppercase tracking-[0.3em] text-gold">
           Club privé
         </p>
