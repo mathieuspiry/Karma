@@ -20,6 +20,39 @@ const budgetLabels: Record<string, string> = {
   plus_150: "Plus de 150 €/mois",
 };
 
+const categoryLabel: Record<string, string> = {
+  de_toi: "De toi",
+  materiel: "Matériel",
+  moment_a_deux: "Moment à deux",
+};
+
+const categoryOrder: Record<string, number> = {
+  de_toi: 0,
+  materiel: 1,
+  moment_a_deux: 2,
+};
+
+const reactionLabel: Record<string, string> = {
+  adore: "Adoré",
+  contente: "Contente",
+  neutre: "Neutre",
+  rate: "Raté",
+};
+
+type HistoryItem = {
+  id: string;
+  category: string;
+  done_at: string | null;
+  reaction: string | null;
+  attentions: { title: string } | null;
+};
+
+type HistoryBatch = {
+  id: string;
+  week_start: string;
+  batch_items: HistoryItem[];
+};
+
 export default async function ProfilPage() {
   const supabase = await createClient();
   const {
@@ -28,7 +61,7 @@ export default async function ProfilPage() {
 
   if (!user) redirect("/connexion");
 
-  const [{ data: member }, { data: couple }] = await Promise.all([
+  const [{ data: member }, { data: couple }, { data: rawBatches }] = await Promise.all([
     supabase
       .from("members")
       .select("first_name, subscription_status, stripe_customer_id, onboarding_completed_at")
@@ -39,7 +72,16 @@ export default async function ProfilPage() {
       .select("partner_first_name, years_together, budget_tier")
       .eq("member_id", user.id)
       .single(),
+    supabase
+      .from("weekly_batches")
+      .select("id, week_start, batch_items(id, category, done_at, reaction, attentions(title))")
+      .eq("member_id", user.id)
+      .not("sent_at", "is", null)
+      .order("week_start", { ascending: false })
+      .limit(12),
   ]);
+
+  const batches = rawBatches as unknown as HistoryBatch[] | null;
 
   // Generate Stripe Customer Portal URL if we have a customer ID
   let portalUrl: string | null = null;
@@ -129,6 +171,63 @@ export default async function ProfilPage() {
             {couple ? "Modifier le profil" : "Compléter le questionnaire"}
           </Link>
         </section>
+
+        {/* Historique */}
+        {(batches ?? []).length > 0 && (
+          <section className="mb-8">
+            <p className="mb-4 text-xs uppercase tracking-[0.2em] text-gold">
+              Historique
+            </p>
+            <div className="flex flex-col gap-6">
+              {(batches ?? []).map((batch) => {
+                const items = [...(batch.batch_items ?? [])].sort(
+                  (a, b) =>
+                    (categoryOrder[a.category] ?? 0) -
+                    (categoryOrder[b.category] ?? 0)
+                );
+                return (
+                  <div key={batch.id}>
+                    <p className="mb-2 text-xs text-foreground/40">
+                      {new Date(batch.week_start).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      {items.map((item) => (
+                        <div key={item.id} className="flex items-start gap-2.5">
+                          <span
+                            className={`mt-0.5 text-xs ${
+                              item.done_at ? "text-gold" : "text-foreground/25"
+                            }`}
+                          >
+                            {item.done_at ? "✓" : "·"}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-xs uppercase tracking-wider text-foreground/30">
+                                {categoryLabel[item.category] ?? item.category}
+                              </span>
+                              {item.reaction && (
+                                <span className="shrink-0 text-xs text-foreground/30">
+                                  {reactionLabel[item.reaction] ?? item.reaction}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-foreground/70">
+                              {item.attentions?.title ?? "—"}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <SignOutButton />
       </div>
