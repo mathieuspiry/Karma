@@ -87,6 +87,10 @@ const faqs = [
     q: "Qu'est-ce qui se passe si j'oublie une semaine ?",
     a: "Le vendredi à 8 h 45, tu reçois un rappel. Une seule relance, pas de honte. La semaine d'après, on repart sur de nouvelles idées.",
   },
+  {
+    q: "Qui a créé ce service ?",
+    a: "Moi, c'est Mathieu. 22 ans avec Caroline, 3 enfants, et la lucidité de reconnaître que j'aurais eu besoin d'un Karma. Caroline a un sens de l'attention que je n'ai pas naturellement, alors on a construit ça ensemble : elle rédige les idées, je les envoie. Les mails sont signés « Mathieu, choisi avec Caroline » parce que c'est exactement ce que c'est.",
+  },
 ];
 
 // ─── Sections ─────────────────────────────────────────────────────────────────
